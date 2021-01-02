@@ -1,7 +1,7 @@
 {
   "name": "homework10",
   "version": "1.0.0",
-  "description": "employee engine",
+  "description": "employee summary",
   "main": "app.js",
   "directories": {
     "lib": "lib",

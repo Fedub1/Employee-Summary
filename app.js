@@ -1,139 +1,141 @@
 const inquirer = require("inquirer");
-const fs =  require("fs");
-
 const Manager = require("./lib/Manager");
-const Intern = require("./lib/Intern");
 const Engineer = require("./lib/Engineer");
+const Intern = require("./lib/Intern");
+const render = require("./htmlRenderer");
 
-async function start(){
-    console.log("Let's make your Team!");
+const teamRoster = []
 
-    let teamHTML = "";
-
-    let teamSize;
+function buildTeamRoster(){
+            inquirer.prompt([
+            {
+                type: "list",
+                message: "What is your role:",
+                name: "staffRole",
+                choices: [
+                    "Manager",
+                    "Engineer",
+                    "Intern"
+                    
+                ]
+            }
+            
+        ])
     
-    await inquirer.prompt(
-        {
-            type: "number",
-            message: "How many people are in your team?",
-            name: "noOfTeamMem"
-        }
-    )
-.then((data) => {
-    teamSize = data.noOfTeamMem + 1;
-});
+        .then(res => {
+    switch (res.staffRole){
+        case "Manager":
+            managerInfo();
+            break;
 
-if(teamSize ===0){
-    console.log("I guess there is no one on your team...");
-    return;
-}
-for(i = 1; i < teamSize; i++){
+        case "Engineer":
+            engineerInfo();
+            break;
 
-    let name;
-    let id;
-    let title;
-    let email;
-
-    await inquirer.prompt([
+        case "Intern":
+            internInfo();
+            break
+                
+       
+    }
+})
+    
+function managerInfo() {
+    inquirer.prompt([
         {
             type: "input",
-            message: `What is employee (${i})'s name?`,
-            name: "name"
+            message: "Enter manager name:",
+            name: "manager_name"
         },
         {
             type: "input",
-            message: `What is employee (${i})'s id?`,
-            name: "id"
+            message: "Enter employee id:",
+            name: "manager_id"
         },
         {
             type: "input",
-            message: `What is employee (${i})'s email?`,
-            name: "email"
+            message: "Enter manager email address:",
+            name: "manager_email"
         },
         {
             type: "input",
-            message: `What is employee (${i})'s title?`,
-            name: "title",
-            options: ["Engineer", "Intern", "Manager"]
+            message: "Enter manager office number:",
+            name: "manager_office_no" 
         }
     ])
 
-    .then((data) => {
+    .then(res => {
 
-name = data.name;
-id = data.id;
-title = data.title;
-email = data.email;
+        const manager = new Manager(res.manager_name, res.manager_id, res.manager_email, res.manager_office_no)
+teamRoster.push(manager)
+buildTeamRoster();
+    })
 
-    });
-
-    switch (title){
-        case "Manager":
-
-        await inquirer.prompt ([
-            {
-                type: "input",
-                message: "What is your Manager's Office Number?",
-                name: "officeNo"
-            }
-        ])
-.then((data) => {
-
-    const manager = new Manager(name, id, email, data.officeNo);
-    teamMember = fs.readFileSync("templates/manager.html");
-
-    teamHTML = teamHTML + "\n" + eval('`'+ teamMember +'`');
-});
-break;
-
-case "Intern":
-    await inquirer.prompt([
-
-           {
-                type: "input",
-                message: "What is school is your Intern attending?",
-                name: "school"
-            }
-        ])
-        .then((data) => {
-
-            const intern = new Intern(name, id, email, data.school);
-            teamMember = fs.readFileSync("templates/intern.html");
-        
-            teamHTML = teamHTML + "\n" + eval('`'+ teamMember +'`');
-        });
-        break;
-
-        case "Engineer":
-    await inquirer.prompt([
-
-           {
-                type: "input",
-                message: "What is your Engineer's GitHub?",
-                name: "github"
-            }
-        ])
-        .then((data) => {
-
-            const engineer = new Engineer(name, id, email, data.github);
-            teamMember = fs.readFileSync("templates/engineer.html");
-        
-            teamHTML = teamHTML + "\n" + eval('`'+ teamMember +'`');
-        });
-        break;
-    }
 }
-const mainHTML = fs.readFileSync ("templates/main.html");
-teamHTML = eval('`'+ mainHTML + '`');
-fs.writeFile("output/team.html", teamHTML, function(err){
+function engineerInfo() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter engineer first_name:",
+            name: "engineer_name"
+        },
+        {
+            type: "input",
+            message: "Enter employee id:",
+            name: "engineer_id"
+        },
+        {
+            type: "input",
+            message: "Enter engineer email:",
+            name: "engineer_email"
+        },
+        {
+            type: "input",
+            message: "Enter engineer Github username:",
+            name: "gitHub_username"
+      }
+    ])
 
-    if(err) {
-        return console.log(err);
+    .then(res => {
 
-    }
-console.log("Success!");
-
-});
+        const engineer = new Engineer(res.engineer_name, res.engineer_id, res.engineer_email, res.gitHub_username)
+teamRoster.push(engineer)
+buildTeamRoster();
+    })
 }
-start();
-   
+
+        function internInfo() {
+            inquirer.prompt([
+                {
+                    type: "input",
+                    message: "Enter intern first_name:",
+                    name: "intern_name"
+                },
+                {
+                    type: "input",
+                    message: "Enter employee id:",
+                    name: "intern_id"
+                },
+                {
+                    type: "input",
+                    message: "Enter intern email:",
+                    name: "intern_email"
+                },
+                {
+                    type: "input",
+                    message: "Enter intern school:",
+                    name: "intern_school"
+                    
+                }
+            ])
+            .then(res => {
+
+                const intern = new Intern(res.intern_name, res.intern_id, res.intern_email, res.intern_school)
+        teamRoster.push(intern)
+        buildTeamRoster();
+            })
+        }
+     }
+            module.exports = teamRoster
+            buildTeamRoster();
+               
